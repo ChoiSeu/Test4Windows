@@ -11,7 +11,7 @@ __description__= "MLP model test for WiFi CSI data"
 
 #---------------------------------------------------------
 #import argparse
-import sys
+#import sys
 import torch
 import numpy as np
 import time
@@ -32,15 +32,17 @@ def load_model():
     return model
 
 #---------------------------------------------------------
-def load_sample( i ):
-    ha = sys.argv[1]
-    my_reader = get_reader(f'./samples/0720/test/0720_{ha}%d.pcap' %i)
-    csi_matrix = my_reader.read_file(f'./samples/0720/test/0720_{ha}%d.pcap' %i, scaled=True)
+def load_sample( ):
+    my_reader = get_reader('./samples/output.pcap')
+    csi_matrix = my_reader.read_file('./samples/output.pcap', scaled=True)
     csi_data, no_frames, no_subcarriers = csitools.get_CSI(csi_matrix, metric='amplitude')
 
     csi_matrix_first = csi_data[:,:,0,0]
     csi_matrix_squeezed = np.squeeze(csi_matrix_first)
-    x_test = np.delete(csi_matrix_squeezed, (0,1,2,3,4,5,11,25,28,29,30,31,32,33,34,35,36,38,52,58,59,60,61,62,63))
+    if csi_matrix_squeezed.ndim == 1:
+        x_test = np.delete(csi_matrix_squeezed, (0,1,2,3,4,5,11,25,28,29,30,31,32,33,34,35,36,38,52,58,59,60,61,62,63))
+    else:
+        x_test = np.delete(csi_matrix_squeezed, (0,1,2,3,4,5,11,25,28,29,30,31,32,33,34,35,36,38,52,58,59,60,61,62,63), 1)
     x_test = np.where(x_test < -200, 0, x_test)
     x_test = np.floor(x_test.reshape(-1, 39) * (-1))
     print('Preprocessing for Outlier is Complete!\n')
@@ -56,10 +58,14 @@ def inferencing( x_test, model ):
 
         labels = ['Blank', 'Left P', 'Left R', 'Mid P', 'Mid R', 'Right P', 'Right R']
         #prediction = labes[torch.argmax(output).item()]
-        prediction = torch.argmax(output).item()
-        #print(prediction)
-        print('Prediction : ', labels[prediction])
-        
+        if output.size == 1:
+            result = torch.argmax(output).item()
+            print('Prediction : ', labels[result])
+        else:
+            prediction = torch.argmax(output, 1)
+            values, counts = np.unique(prediction, return_counts=True)
+            result = values[np.argmax(counts)]
+            print('Prediction : ', labels[result])
         #return will need for Application(I will use this result for keyboard interupt)
         #return prediction
 
@@ -68,18 +74,15 @@ def inferencing( x_test, model ):
 if __name__ == '__main__':
 
     model = load_model()
-    i = 1
 
     while True:
         
         start = time.time()
-        x_test =  load_sample( i )
+        x_test =  load_sample()
         inferencing( x_test, model )
         end = time.time()
-        #while (end - start) < 1 :
-        #    end = time.time()
+        while (end - start) < 1 :
+            end = time.time()
         print('*****************************************')
         print(f'All process is done in {end - start:.5f} sec!')
         print('*****************************************')
-        if i == 10: break
-        else: i += 1
