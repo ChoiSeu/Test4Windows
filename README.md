@@ -1,4 +1,4 @@
-Windows 환경에서 1sec Live Stream 확인을 위함
+Offline data 테스트용
 
 ## NOTICE
  : test_1packet.py는 1packet캡처된 샘플용
@@ -17,11 +17,8 @@ Windows 환경에서 1sec Live Stream 확인을 위함
 ## 순서
   1. 폴더 하나 만들고 git clone https://github.com/ChoiSeu/Test4Windows.git
 
-  2. samples 폴더에 통신 코드 넣기
+  2. samples 폴더에 원하는 샘플, models에 원하는 모델 넣기
 
-  3. 캡처한 packet 수에 맞는 test 코드 선택
+  3. 캡처한 packet 수에 맞는 test 코드 선택 후, sample 날짜 수정 및 모델 수정
 
-  4. test에 사용할 모델로 수정
-
-  5. 라이브 스트림 테스트 진행
-
+  4. python3 <사용할 test 코드명> <test할 동작명>
