@@ -17,7 +17,7 @@ Windows 환경에서 1sec Live Stream 확인을 위함
 ## 순서
   1. 폴더 하나 만들고 git clone https://github.com/ChoiSeu/Test4Windows.git
 
-  2. samples 폴더에 통신 코드 넣기
+  2. samples 폴더에 통신 코드 넣고 output.pcap으로 생성되게 하기
 
   3. 캡처한 packet 수에 맞는 test 코드 선택
 
