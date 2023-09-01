@@ -65,6 +65,7 @@ def inferencing( x_test, model ):
             values, counts = np.unique(prediction, return_counts=True)
             result = values[np.argmax(counts)]
         infer = labels[result]
+        print("Prediction of this packet : ", infer)
     return infer
         #return will need for Application(I will use this result for keyboard interupt)
         #return prediction
@@ -81,7 +82,7 @@ if __name__ == '__main__':
 
     model = load_model()
     i = 0
-    result = np.array(['Blank', 'Blank', 'Blank'], dtype='s')
+    result = ['Blank', 'Blank', 'Blank']
 
     while True:
         
