@@ -6,7 +6,7 @@ __credits__    = ["none", "some"]
 __maintainer__ = "biul"
 __email__      = "qtrr9870@gmail.com"
 __status__     = "Development"
-__date__       = "2023.08.13"
+__date__       = "2023.09.01"
 __description__= "MLP model test for WiFi CSI data"
 
 #---------------------------------------------------------
@@ -60,27 +60,42 @@ def inferencing( x_test, model ):
         #prediction = labes[torch.argmax(output).item()]
         if output.size == 1:
             result = torch.argmax(output).item()
-            print('Prediction : ', labels[result])
         else:
             prediction = torch.argmax(output, 1)
             values, counts = np.unique(prediction, return_counts=True)
             result = values[np.argmax(counts)]
-            print('Prediction : ', labels[result])
+        infer = labels[result]
+    return infer
         #return will need for Application(I will use this result for keyboard interupt)
         #return prediction
 
+#---------------------------------------------------------
+def vote( result ):
+    values, counts = np.unique(result, return_counts=True)
+    winner = values[np.argmax(counts)]
+    print('Prediction : ', winner)
+    
 #---------------------------------------------------------
 
 if __name__ == '__main__':
 
     model = load_model()
+    i = 0
+    result = np.array(['Blank', 'Blank', 'Blank'], dtype='s')
 
     while True:
         
         start = time.time()
         x_test =  load_sample()
-        inferencing( x_test, model )
+        infer = inferencing( x_test, model )
+        result[i] = infer
+        if i < 2:
+            i += 1
+        else:
+            i = 0
+        vote( result ) #나중에 return 추가해서 키보드 입력에 사용할 수 있게 변경
         end = time.time()
+
         while (end - start) < 1 :
             end = time.time()
         print('*****************************************')
