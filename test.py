@@ -32,9 +32,18 @@ def load_model():
     return model
 
 #---------------------------------------------------------
-def load_sample( ):
-    my_reader = get_reader('./samples/output.pcap')
-    csi_matrix = my_reader.read_file('./samples/output.pcap', scaled=True)
+def load_sample( k ):
+    if k < 4:
+        output = "0831_blank"
+    elif k < 7:
+        output = "0831_left"
+    elif k < 10:
+        output = "0831_middle"
+    else:
+        output = "0831_right"
+
+    my_reader = get_reader(f'./samples/0831/{output}%d.pcap'%k)
+    csi_matrix = my_reader.read_file(f'./samples/0831/{output}%d.pcap'%k, scaled=True)
     csi_data, no_frames, no_subcarriers = csitools.get_CSI(csi_matrix, metric='amplitude')
 
     csi_matrix_first = csi_data[:,:,0,0]
@@ -65,6 +74,7 @@ def inferencing( x_test, model ):
             values, counts = np.unique(prediction, return_counts=True)
             result = values[np.argmax(counts)]
         infer = labels[result]
+        print('Prediction of this packet : ', infer)
     return infer
         #return will need for Application(I will use this result for keyboard interupt)
         #return prediction
@@ -73,7 +83,7 @@ def inferencing( x_test, model ):
 def vote( result ):
     values, counts = np.unique(result, return_counts=True)
     winner = values[np.argmax(counts)]
-    print('Prediction : ', winner)
+    print('Final Prediction : ', winner)
     
 #---------------------------------------------------------
 
@@ -81,12 +91,13 @@ if __name__ == '__main__':
 
     model = load_model()
     i = 0
-    result = np.array(['Blank', 'Blank', 'Blank'], dtype='s')
+    k = 1
+    result = ['Blank', 'Blank', 'Blank']
 
     while True:
         
         start = time.time()
-        x_test =  load_sample()
+        x_test =  load_sample(k)
         infer = inferencing( x_test, model )
         result[i] = infer
         if i < 2:
@@ -95,7 +106,10 @@ if __name__ == '__main__':
             i = 0
         vote( result ) #나중에 return 추가해서 키보드 입력에 사용할 수 있게 변경
         end = time.time()
-
+        if k < 12:
+            k += 1
+        else:
+            break
         while (end - start) < 1 :
             end = time.time()
         print('*****************************************')
